@@ -43,6 +43,7 @@ module Rails3AMF
 
       # Run it
       con = controller.new
+      con.request = req
       res = con.dispatch(method_name, req)
       return con.amf_response
     end
