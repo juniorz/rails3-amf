@@ -67,7 +67,7 @@ module Rails3AMF
     end
 
     def build_params controller_name, method_name, args
-      params = {}
+      params = {:action => method_name}
       args.each_with_index {|obj, i| params[i] = obj}
       params.merge!(@config.mapped_params(controller_name, method_name, args))
       params
