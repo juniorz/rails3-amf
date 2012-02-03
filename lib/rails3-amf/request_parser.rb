@@ -1,3 +1,5 @@
+require 'logger'
+
 module Rails3AMF
   class RequestParser
     def initialize app, config={}, logger=nil

@@ -2,6 +2,8 @@ require 'spec_helper.rb'
 
 describe Rails3AMF::RequestProcessor do
   class FakeController
+    attr_accessor :request
+
     def self.controller_name; 'fake'; end
     def self.action_methods; ['get_user']; end
     def dispatch action_name, request
@@ -62,6 +64,7 @@ describe Rails3AMF::RequestProcessor do
     @env['rails3amf.request'].messages << RocketAMF::Message.new('FakeController.get_user', '/1', [])
     @app.should_receive(:get_service).with('FakeController', 'get_user').and_return(FakeController)
     c = mock FakeController
+    c.should_receive(:request=)
     c.stub!(:dispatch) { raise "die" }
     FakeController.should_receive(:new).and_return(c)
 

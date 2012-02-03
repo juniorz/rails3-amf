@@ -13,8 +13,8 @@ lines to your gemfile. RocketAMF will need to be pulled from git for now, as
 there are several necessary updates that have been made to it to allow
 rails3-amf to work properly.
 
-  gem 'RocketAMF', :git => 'git://github.com/warhammerkid/rocket-amf.git'
-  gem 'rails3-amf', :git => 'git://github.com/warhammerkid/rails3-amf.git'
+  gem 'RocketAMF', :git => 'git://github.com/rubyamf/rocket-amf.git', :ref => 'ed82db7659f624d6c3ca244e4127dad270a484c7'
+  gem 'rails3-amf', :git => 'git://github.com/juniorz/rails3-amf.git'
 
 Then, make sure that your controller will respond to amf by adding <tt>:amf</tt>
 to your respond_to, and you should be all ready to go with an AMF gateway
@@ -51,6 +51,31 @@ Example:
   end
   config.rails3amf.map_params :controller => 'UserController', :action => 'getUser', :params => [:session_id]
 
+
+== This fork changes:
+
+=== Fixes
+1. Remove deprecation warnings in ActiveSupport::Dependency
+2. Make it work with the latest [RocketAMF](https://github.com/rubyamf/rocketamf/tree/ed82db7659f624d6c3ca244e4127dad270a484c7)
+
+=== Improvements
+1. Updates the development environment
+2. Forwards default params to AMF request (namely, params[:controller] and params[:action])
+3. Adds ActiveRecord::Relation#to_amf
+4. Adds ActionController::Responder#to_amf
+
+== TODO
+
+1. Get parameter mapping from controller. It could DRY the parameter mapping configuration.
+Example:
+
+    config.rails3amf.default_mapping :application_controller => {
+      :index =>     [:session_id],
+      :show =>      [:session_id, :id],
+      :edit =>      [:session_id, :resource],
+      :create =>    [:session_id, :resource],
+      :destroy =>   [:session_id, :id]
+    }
 
 == LICENSE:
 

@@ -3,33 +3,52 @@ require 'active_record'
 
 describe Rails3AMF::Serialization do
   before :all do
-    # If we replace columns, we don't need a DB connection - YEAH!!!
-    class User < ActiveRecord::Base
-      def self.columns
-        unless defined?(@columns) && @columns
-          @columns = []
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("id", nil, "INTEGER")
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("username", nil, "varchar(255)")
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("password", nil, "varchar(255)")
-          @columns[0].primary = true
-        end
-        @columns
+
+    class ModelWithoutDatabase
+      extend ActiveModel::Naming
+      include ActiveModel::AttributeMethods
+      include ActiveModel::Serialization
+
+      include ActiveRecord::Reflection
+      include ActiveRecord::Serialization
+      include ActiveRecord::Associations
+
+      attr_accessor :attributes
+
+      def initialize(attributes = {})
+        @attributes = attributes
       end
 
+      def read_attribute(attr_name)
+        @attributes[attr_name.to_sym]
+      end
+
+      def read_attribute_for_validation(key)
+        @attributes[key]
+      end
+
+      def persisted?
+        false
+      end
+
+      def self.pluralize_table_names
+        true
+      end
+
+      def self.inheritance_column
+        "type"
+      end
+    end
+
+    class User < ModelWithoutDatabase
+      attr_accessor :id, :username, :password
+      define_attribute_methods %w(id username password)
       has_many :courses
     end
 
-    class Course < ActiveRecord::Base
-      def self.columns
-        unless defined?(@columns) && @columns
-          @columns = []
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("id", nil, "INTEGER")
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("user_id", nil, "INTEGER")
-          @columns << ActiveRecord::ConnectionAdapters::Column.new("name", nil, "varchar(255)")
-          @columns[0].primary = true
-        end
-        @columns
-      end
+    class Course < ModelWithoutDatabase
+      attr_accessor :id, :name
+      define_attribute_methods %w(id name)
     end
 
     class AMTest
@@ -109,7 +128,7 @@ describe Rails3AMF::Serialization do
 
     output = RocketAMF.serialize(@user.to_amf(:include => "courses"), 0)
 
-    fixture = File.open(File.dirname(__FILE__) + '/fixtures/amf0-ar.dat').read
+    fixture = File.open(File.dirname(__FILE__) + '/fixtures/amf0-ar-new.dat').read
     fixture.force_encoding("ASCII-8BIT") if fixture.respond_to?(:force_encoding)
     output.should == fixture
 
@@ -121,7 +140,7 @@ describe Rails3AMF::Serialization do
 
     output = RocketAMF.serialize(@user.to_amf(:include => "courses"), 3)
 
-    fixture = File.open(File.dirname(__FILE__) + '/fixtures/amf3-ar.dat').read
+    fixture = File.open(File.dirname(__FILE__) + '/fixtures/amf3-ar-new.dat').read
     fixture.force_encoding("ASCII-8BIT") if fixture.respond_to?(:force_encoding)
     output.should == fixture
     Rails3AMF::IntermediateModel::TRAIT_CACHE.length.should == 2

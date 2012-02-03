@@ -1,15 +1,12 @@
-require 'rocketamf'
-require 'rails'
-
-require 'rails3-amf/serialization'
-require 'rails3-amf/action_controller'
-require 'rails3-amf/configuration'
-require 'rails3-amf/request_parser'
-require 'rails3-amf/request_processor'
+require 'rails/railtie'
 
 module Rails3AMF
   class Railtie < Rails::Railtie
     config.rails3amf = Rails3AMF::Configuration.new
+
+    config.before_initialize do
+      Mime::Type.register("application/x-amf", :amf) unless Mime.const_defined?(:AMF)
+    end
 
     initializer "rails3amf.middleware" do
       config.app_middleware.use Rails3AMF::RequestParser, config.rails3amf, Rails.logger

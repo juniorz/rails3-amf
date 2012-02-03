@@ -1,4 +1,6 @@
-require 'active_model'
+require 'active_record' # I cant require only Activerecord::Relation
+require 'active_model/serialization'
+require 'active_support/time_with_zone'
 require 'rails3-amf/intermediate_model'
 
 module Rails3AMF
@@ -44,7 +46,13 @@ end
 # Make ActiveSupport times serialize properly
 class ActiveSupport::TimeWithZone
   def encode_amf serializer
-    serializer.serialize self.to_datetime
+    serializer.serialize serializer.version, self.to_datetime
+  end
+end
+
+class ActiveRecord::Relation
+  def to_amf
+    self.to_a.to_amf
   end
 end
 

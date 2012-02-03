@@ -1,7 +1,7 @@
-require 'rubygems'
-require 'spec'
-require 'spec/autorun'
+$:.unshift(File.expand_path('../../lib', __FILE__))
 
-$:.unshift(File.dirname(__FILE__) + '/../lib')
+require 'rubygems' unless defined? Gem
+require 'bundler'
+Bundler.setup
 
 require 'rails3-amf'

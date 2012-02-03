@@ -1,40 +1,23 @@
-require 'rubygems'
-require 'rake'
-require 'rake/rdoctask'
-require 'rake/gempackagetask'
+#!/usr/bin/env rake
+begin
+  require 'bundler/setup'
+rescue LoadError
+  puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
+end
+begin
+  require 'rdoc/task'
+rescue LoadError
+  require 'rdoc/rdoc'
+  require 'rake/rdoctask'
+  RDoc::Task = Rake::RDocTask
+end
 
-require 'spec/rake/spectask'
+Bundler::GemHelper.install_tasks
+require 'rspec/core/rake_task'
 
 desc 'Default: run the specs.'
 task :default => :spec
 
-Spec::Rake::SpecTask.new do |t|
-  t.spec_opts = ['--options', 'spec/spec.opts']
-end
-
-spec = Gem::Specification.new do |s|
-  s.name    = 'rails3-amf'
-  s.version = '0.1.0'
-  s.summary = 'A Rails 3 plugin that provides tight rails amf integration'
-
-  s.files        = FileList['README.rdoc', 'Rakefile', 'lib/**/*.rb']
-  s.require_path = 'lib'
-
-  s.authors  = ['Stephen Augenstein']
-  s.email    = 'perl.programmer@gmail.com'
-  s.homepage = 'http://github.com/warhammerkid/rails3-amf'
-
-  s.platform = Gem::Platform::RUBY
-end
-
-Rake::GemPackageTask.new spec do |pkg|
-  pkg.need_tar = true
-  pkg.need_zip = true
-end
-
-desc 'Generate a gemspec file'
-task :gemspec do
-  File.open("#{spec.name}.gemspec", 'w') do |f|
-    f.write spec.to_ruby
-  end
+RSpec::Core::RakeTask.new do |t|
+  t.rspec_opts = ['--options', 'spec/spec.opts']
 end

@@ -7,6 +7,8 @@ module Rails3AMF
       @props = props.inject({}) {|out, (k,v)| out[k.to_s] = v; out}
     end
 
+    # RocketAMF::Pure::Serializer already has a trait_cache.
+    # What about the "native-c" serializer?
     def encode_amf serializer
       if serializer.version == 0
         serializer.write_object @model, @props
@@ -14,7 +16,7 @@ module Rails3AMF
         # Use traits to reduce overhead
         unless traits = TRAIT_CACHE[@model.class]
           # Auto-map class name if enabled
-          class_name = RocketAMF::ClassMapper.get_as_class_name(@model)
+          class_name = RocketAMF::ClassMapper.new.get_as_class_name(@model)
           if Rails3AMF::Configuration.auto_class_mapping && class_name.nil?
             class_name = @model.class.name
             RocketAMF::ClassMapper.define {|m| m.map :as => class_name, :rb => class_name}

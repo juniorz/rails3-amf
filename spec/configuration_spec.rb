@@ -18,7 +18,8 @@ describe Rails3AMF::Configuration do
     @config.class_mapping do |m|
       m.map :ruby => "TestRuby", :as => "TestAS"
     end
-    RocketAMF::ClassMapper.get_as_class_name("TestRuby").should == "TestAS"
+
+    RocketAMF::ClassMapper.new.get_as_class_name("TestRuby").should == "TestAS"
     RocketAMF::ClassMapper.reset
   end
 
